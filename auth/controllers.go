@@ -157,7 +157,6 @@ func GoogleOauth2(c *fiber.Ctx) error {
 		})
 	}
 	var userInfo GoogleUserInfo
-	log.Println(string(contents))
 	json.Unmarshal(contents, &userInfo)
 
 	// check existing user

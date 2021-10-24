@@ -13,6 +13,7 @@ type User struct {
 	IsActive   bool   `gorm:"not null; default:true"`
 	PictureUrl string `gorm:""`
 	Locale     string `gorm:"not null; size:15; default:en"`
+	IsAdmin    bool   `gorm:"not null; default:false"`
 }
 
 type TokenRefreshInput struct {

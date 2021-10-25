@@ -7,6 +7,7 @@ import (
 
 	"github.com/dennybiasiolli/go-quiz/auth"
 	"github.com/dennybiasiolli/go-quiz/common"
+	"github.com/dennybiasiolli/go-quiz/quiz"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 )
@@ -17,7 +18,11 @@ func main() {
 	common.GetEnvVariables(".env", ".env.default")
 
 	common.ConnectDb()
-	common.GetDB().AutoMigrate(&auth.User{})
+	common.GetDB().AutoMigrate(
+		&auth.User{},
+		&quiz.Quiz{},
+		&quiz.Question{},
+	)
 
 	app := fiber.New()
 	app.Use(cors.New())

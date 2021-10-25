@@ -29,3 +29,13 @@ func GetJwtAuthMiddleware() func(*fiber.Ctx) error {
 		},
 	})
 }
+
+func IsAdminMiddleware() func(*fiber.Ctx) error {
+	return func(c *fiber.Ctx) error {
+		user := c.Locals("user").(User)
+		if !user.IsAdmin {
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Unauthorized"})
+		}
+		return c.Next()
+	}
+}

@@ -3,6 +3,7 @@ package quiz
 import (
 	"errors"
 	"fmt"
+	"strconv"
 
 	"github.com/dennybiasiolli/go-quiz/common"
 	"github.com/go-playground/validator/v10"
@@ -86,6 +87,28 @@ func QuizUpdate(c *fiber.Ctx) error {
 	return c.SendStatus(fiber.StatusOK)
 }
 
+func QuizDelete(c *fiber.Ctx) error {
+	id, err := strconv.Atoi(c.Params("id"))
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": err.Error(),
+		})
+	}
+
+	db := common.GetDB()
+	res := db.Delete(&Quiz{}, id)
+	if res.Error != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": res.Error.Error(),
+		})
+	} else if res.RowsAffected == 0 {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "Unable to find selected record",
+		})
+	}
+	return c.SendStatus(fiber.StatusOK)
+}
+
 func QuestionCreate(c *fiber.Ctx) error {
 	input := new(Question)
 	c.BodyParser(input)
@@ -123,6 +146,28 @@ func QuestionUpdate(c *fiber.Ctx) error {
 
 	db := common.GetDB()
 	res := db.Omit(clause.Associations).Updates(&input)
+	if res.Error != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": res.Error.Error(),
+		})
+	} else if res.RowsAffected == 0 {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "Unable to find selected record",
+		})
+	}
+	return c.SendStatus(fiber.StatusOK)
+}
+
+func QuestionDelete(c *fiber.Ctx) error {
+	id, err := strconv.Atoi(c.Params("id"))
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": err.Error(),
+		})
+	}
+
+	db := common.GetDB()
+	res := db.Delete(&Question{}, id)
 	if res.Error != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"message": res.Error.Error(),

@@ -2,6 +2,7 @@ package quiz
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/dennybiasiolli/go-quiz/common"
 	"github.com/go-playground/validator/v10"
@@ -55,6 +56,36 @@ func QuizCreate(c *fiber.Ctx) error {
 	return c.JSON(QuizSerializer(*input))
 }
 
+func QuizUpdate(c *fiber.Ctx) error {
+	input := new(Quiz)
+	c.BodyParser(input)
+	if err := validator.New().Struct(*input); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	id := c.Params("id")
+	if input.ID == 0 || fmt.Sprint(input.ID) != id {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "URL ID and Body ID are not the same",
+		})
+	}
+
+	db := common.GetDB()
+	res := db.Omit(clause.Associations).Updates(&input)
+	if res.Error != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": res.Error.Error(),
+		})
+	} else if res.RowsAffected == 0 {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "Unable to find selected record",
+		})
+	}
+	return c.SendStatus(fiber.StatusOK)
+}
+
 func QuestionCreate(c *fiber.Ctx) error {
 	input := new(Question)
 	c.BodyParser(input)
@@ -72,4 +103,34 @@ func QuestionCreate(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(QuestionSerializer(*input))
+}
+
+func QuestionUpdate(c *fiber.Ctx) error {
+	input := new(Question)
+	c.BodyParser(input)
+	if err := validator.New().Struct(*input); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	id := c.Params("id")
+	if input.ID == 0 || fmt.Sprint(input.ID) != id {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "URL ID and Body ID are not the same",
+		})
+	}
+
+	db := common.GetDB()
+	res := db.Omit(clause.Associations).Updates(&input)
+	if res.Error != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": res.Error.Error(),
+		})
+	} else if res.RowsAffected == 0 {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "Unable to find selected record",
+		})
+	}
+	return c.SendStatus(fiber.StatusOK)
 }
